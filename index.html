@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 
+<<<<<<< HEAD
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
@@ -76,4 +77,74 @@ $ git checkout gh-pages
     
 
   </body>
+=======
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="animate.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <!-- Load angular first for the sake of the application -->
+    <!-- Ideal would be to async load it -->
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+
+</head>
+
+<body ng-app="slideShow" animation="slide-left-right-ios7">
+
+<div ng-controller="ExampleCtrl">
+
+    <!-- PLUGIN START -->
+    <div class="ngSlideshow" ng-style="{height:options.ResponsiveHeight + 'px'}">
+
+        <div class="slide-container">
+
+            <!-- SLIDER TOP -->
+            <div class="slide-top">
+                <h1 ng-style="{'text-align':options.textAlign}">{{ activeTitle }}</h1>
+                <span ng-click="toggleSlideshow()">{{slideshowRunning ? 'Stop' : 'Start'}}</span>
+            </div>
+            <!-- END SLIDER TOP -->
+
+            <!-- MAIN CONTENT -->
+            <div class="slide-main animated fadeIn" style="background-image:url({{ slide.Url }});"
+                 ng-show="activeIndex === $index"
+                 ng-style="{height:(options.ResponsiveHeight - 100) + 'px'}"
+                 ng-repeat="slide in slideShowData">
+
+                <span ng-style="{width : ( (counter/delay * 100) + '%' ) }"></span>
+
+                <div class="slide-left" ng-show="activeIndex !== 0" ng-click="goBack($index)">
+                    <a href="javascript:;"></a>
+                </div>
+                <div class="slide-right" ng-show="activeIndex !== slideShowData.length-1" ng-click="goForward($index)">
+                    <a href="javascript:;"></a>
+                </div>
+
+            </div>
+            <!-- END MAIN CONTENT -->
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="slide-nav">
+            <ul>
+                <li ng-repeat="slide in slideShowData" ng-click="goToSlide($index)"
+                    ng-class="{active:activeIndex === $index}">{{$index}}
+                </li>
+            </ul>
+        </div>
+        <!-- END BOTTOM NAVIGATION -->
+
+    </div>
+    <!-- END PLUGIN START -->
+
+</div>
+
+</body>
+
+>>>>>>> master
 </html>
