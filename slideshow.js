@@ -5,7 +5,7 @@ angular.module("ngModules", [])
         return {
             restrict: 'EA',
             replace: true,
-            template:generateHtml(),
+            templateUrl:'slides.html',
             scope: {
                 textAlign: '=',
                 titleName: '=',
@@ -16,11 +16,16 @@ angular.module("ngModules", [])
             },
             link: function (scope, element, attrs) {
 
+                // Slideshow data will hold all the slides
                 scope.slideShowData = [];
+                // Options will store all the options for the slideshow
                 scope.options = {};
-                // Start the slideshow when the app is ready.
+                // AutoStartSlideTimer is a variable that holds the timer information
                 var autoStartSlideTimer;
 
+                /**
+                 * Load the data from variables passed through html
+                 */
                 var loadData = function () {
                     scope.options = {
                         "textAlign": scope.textAlign ? scope.textAlign : "left",
@@ -29,12 +34,15 @@ angular.module("ngModules", [])
                         "height": scope.height ? scope.height : 400,
                         "interval": scope.interval ? scope.interval : 6000
                     };
+                    // Start the slideshow only if the data variables is loaded is not empty
+                    // TODO: Change view if no data loaded or not initialized
                     if (scope.data.length > 0) {
                         scope.slideShowData = scope.data;
                         initSlideshow();
                     }
                 };
-                
+
+                // Watch all the variables passed through html
                 scope.$watch('textAlign', loadData);
                 scope.$watch('titleName', loadData);
                 scope.$watch('locationName', loadData);
@@ -73,29 +81,88 @@ angular.module("ngModules", [])
                  * Stop the slideshow
                  */
                 scope.stopSlideshow = function() {
-                    $interval.cancel(autoStartSlideTimer);
-                    scope.counter = 0;
-                    scope.slideshowRunning = false;
+                    stopSlides(false);
                 };
 
                 /**
                  * Start the slideshow
                  */
                 scope.startSlideshow = function() {
+                    startSlides(false);
+                };
+
+                /**
+                 * Pause the slides
+                 */
+                scope.pauseSlideshow = function() {
+                    stopSlides(true);
+                };
+
+                /**
+                 * Reume the slides
+                 */
+                scope.resumeSlideshow = function() {
+                    startSlides(true);
+                };
+
+                /**
+                 * Helper function - Start slides
+                 * @param onPause - Whether we are starting from puase state or not
+                 */
+                function startSlides(onPause) {
                     // stops any running interval to avoid two intervals running at the same time
-                    scope.stopSlideshow();
-                    scope.counter = 0;
+                    $interval.cancel(autoStartSlideTimer);
+                    if (!onPause) {
+                        scope.counter = 0;
+                        scope.isStopped = false;
+                    } else {
+                        scope.isPaused = false;
+                    }
                     scope.slideshowRunning = true;
                     // store the interval promise
                     autoStartSlideTimer = $interval(callAtInterval, 1);
-                };
+                }
+
+                /**
+                 * Helper function - Stop slides
+                 * @param onPause - Whether we are pausing or not
+                 */
+                function stopSlides(onPause) {
+                    $interval.cancel(autoStartSlideTimer);
+                    if (!onPause) {
+                        scope.counter = 0;
+                        scope.isStopped = true;
+                    } else {
+                        scope.isPaused = true;
+                    }
+                    scope.slideshowRunning = false;
+                }
 
                 /**
                  * Toggle the slideshow. Meaning, if it's on, stop it, else start it.
                  */
-                scope.toggleSlideshow = function() {
-                    if (scope.slideshowRunning) scope.stopSlideshow();
-                    else scope.startSlideshow();
+                scope.toggleSlideshow = function(isPause) {
+                    console.log(isPause)
+                    if (scope.slideshowRunning){
+                        if (isPause){
+                            scope.isPaused = true;
+                            scope.pauseSlideshow();
+                        }  else {
+                            scope.isStopped = true;
+                            scope.stopSlideshow();
+                        }
+
+                    }
+                    else {
+                        if (isPause){
+                            scope.isPaused = false;
+                            scope.resumeSlideshow();
+                        } else {
+                            scope.isStopped = false;
+                            scope.startSlideshow();
+                        }
+
+                    }
                 };
 
                 /**
@@ -186,52 +253,5 @@ angular.module("ngModules", [])
 
             }
         };
-
-        function generateHtml() {
-            var strVar="";
-            strVar += "    <div class=\"ngSlideshow\" ng-style=\"{height:options.ResponsiveHeight + 'px'}\">";
-            strVar += "";
-            strVar += "        <div class=\"slide-container\">";
-            strVar += "";
-            strVar += "            <!-- SLIDER TOP -->";
-            strVar += "            <div class=\"slide-top\">";
-            strVar += "                <h1 ng-style=\"{'text-align':options.textAlign}\">{{ activeTitle }}<\/h1>";
-            strVar += "                <span ng-click=\"toggleSlideshow()\">{{slideshowRunning ? 'Stop' : 'Start'}}<\/span>";
-            strVar += "            <\/div>";
-            strVar += "            <!-- END SLIDER TOP -->";
-            strVar += "";
-            strVar += "            <!-- MAIN CONTENT -->";
-            strVar += "            <div class=\"slide-main animated fadeIn\" style=\"background-image:url({{ slide[options.locationName] }});\"";
-            strVar += "                 ng-show=\"activeIndex === $index\"";
-            strVar += "                 ng-style=\"{height:(options.ResponsiveHeight - 100) + 'px'}\"";
-            strVar += "                 ng-repeat=\"slide in slideShowData track by $index\">";
-            strVar += "";
-            strVar += "                <span ng-style=\"{width : ( (counter\/delay * 100) + '%' ) }\"><\/span>";
-            strVar += "";
-            strVar += "                <div class=\"slide-left\" ng-show=\"activeIndex !== 0\" ng-click=\"goBack($index)\">";
-            strVar += "                    <a href=\"javascript:;\"><\/a>";
-            strVar += "                <\/div>";
-            strVar += "                <div class=\"slide-right\" ng-show=\"activeIndex !== slideShowData.length-1\" ng-click=\"goForward($index)\">";
-            strVar += "                    <a href=\"javascript:;\"><\/a>";
-            strVar += "                <\/div>";
-            strVar += "";
-            strVar += "            <\/div>";
-            strVar += "            <!-- END MAIN CONTENT -->";
-            strVar += "";
-            strVar += "        <\/div>";
-            strVar += "";
-            strVar += "        <!-- BOTTOM NAVIGATION -->";
-            strVar += "        <div class=\"slide-nav\">";
-            strVar += "            <ul>";
-            strVar += "                <li ng-repeat=\"slide in slideShowData track by $index\" ng-click=\"goToSlide($index)\"";
-            strVar += "                    ng-class=\"{active:activeIndex === $index}\">{{$index}}";
-            strVar += "                <\/li>";
-            strVar += "            <\/ul>";
-            strVar += "        <\/div>";
-            strVar += "        <!-- END BOTTOM NAVIGATION -->";
-            strVar += "";
-            strVar += "    <\/div>";
-            return strVar;
-        }
 
     });

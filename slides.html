@@ -1,0 +1,39 @@
+<div class="ngSlideshow" ng-style="{height:options.ResponsiveHeight + 'px'}">
+
+    <div class="slide-container">            <!-- SLIDER TOP -->
+        <div class="slide-top">
+            <h1 ng-style="{'text-align':options.textAlign}">{{ activeTitle }}</h1>
+            <div>
+                <span ng-hide="isPaused" ng-click="toggleSlideshow(false)">{{slideshowRunning ? 'Stop' : 'Start'}}</span>
+                <span ng-hide="isStopped" ng-click="toggleSlideshow(true)">{{slideshowRunning ? 'Pause' : 'Resume'}}</span>
+            </div>
+
+        </div>
+        <!-- END SLIDER TOP -->
+
+        <!-- MAIN CONTENT -->
+        <div class="slide-main animated fadeIn" style="background-image:url({{ slide[options.locationName] }});"
+             ng-show="activeIndex === $index" ng-style="{height:(options.ResponsiveHeight - 100) + 'px'}"
+             ng-repeat="slide in slideShowData track by $index">
+            <span ng-style="{width : ( (counter/delay * 100) + '%' ) }"></span>
+
+            <div class="slide-left" ng-show="activeIndex !== 0" ng-click="goBack($index)">
+                <a href="javascript:;"></a>
+            </div>
+            <div class="slide-right" ng-show="activeIndex !== slideShowData.length-1" ng-click="goForward($index)">
+                <a href="javascript:;"></a>
+            </div>
+        </div>
+        <!-- END MAIN CONTENT -->
+
+    </div>
+    <!-- BOTTOM NAVIGATION -->
+    <div class="slide-nav">
+        <ul>
+            <li ng-repeat="slide in slideShowData track by $index" ng-click="goToSlide($index)"
+                ng-class="{active:activeIndex === $index}">{{$index}}
+            </li>
+        </ul>
+    </div>
+    <!-- END BOTTOM NAVIGATION -->
+</div>
